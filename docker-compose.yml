@@ -1,11 +1,11 @@
 version: '3'
 
 services:
-  mychat:
+  backend:
     image: 'docker-spring-boot-postgres:latest'
     build:
       context: ./backend
-    container_name: app
+    container_name: back
     depends_on:
       - postgres
     environment:
@@ -15,6 +15,22 @@ services:
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
     ports:
       - "8080:8080"
+
+
+
+  frontend:
+    build:
+      context: ./frontend
+    container_name: front
+    stdin_open: true
+    restart: always
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/usr/src/app
+      - /usr/src/app/node_modules
+    depends_on:
+      - backend
 
   postgres:
     container_name: postgres
