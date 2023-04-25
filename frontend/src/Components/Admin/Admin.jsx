@@ -2,6 +2,7 @@ import React from "react";
 import {useState, useEffect, useContext} from "react";
 import {allUsers, deleteUser, login} from '../../http/userApi'
 import {observer} from "mobx-react-lite";
+import ReactLoading from "react-loading";
 let page = 0;
 const Admin = observer(() => {
 
@@ -44,7 +45,9 @@ const Admin = observer(() => {
     }, [])
 
     if (loading) {
-        return (<div>Загрузка</div>)
+        return (<div className={"d-flex min-vh-100 align-items-center justify-content-center"}><ReactLoading
+            className={"col-md-8 mx-auto h-100"} type={"spinningBubbles"} color={"skyblue"} height={'20vh'}
+            width={'20vh'}></ReactLoading></div>)
     } else {
         return (
             <div className="container">
@@ -67,6 +70,7 @@ const Admin = observer(() => {
                                         style={{ height: 100 , width:80}} src={'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSh-Eyhw75b-TG4elFWMKn9AofNoQQMgkIwiw&usqp=CAU'}></img>
                                     }
                                 </td>
+                                <td>{user.username}</td>
                                 <td>{user.email}</td>
                                 <td>{user.active ? 'Активен' : 'Не активен'}</td>
                                 {user.authorities.includes('ROLE_ADMIN') &&

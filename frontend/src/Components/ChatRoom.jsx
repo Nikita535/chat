@@ -3,12 +3,14 @@ import {over} from 'stompjs';
 import SockJS from 'sockjs-client';
 import {useContext} from "react";
 import {Context} from "../index";
+import ReactLoading from "react-loading"
 import {allUsers, getPrivateMessages, getPublicMessages} from "../http/userApi";
 let globalPublicChats=[];
 let members=[]
 
 var stompClient =null;
 const ChatRoom = () => {
+    const [loading, setLoading] = useState(true);
     const [privateChats, setPrivateChats] = useState(new Map());
     const [publicChats, setPublicChats] = useState([]);
     const [tab,setTab] =useState("CHATROOM");
@@ -26,7 +28,7 @@ const ChatRoom = () => {
         allUsers().then((data)=>{
             members=[...data.data]
             console.log(members)
-        })
+        }).finally(() => setLoading(false))
 
         getPublicMessages().then((data) => {
             globalPublicChats = data.data
@@ -134,7 +136,11 @@ const ChatRoom = () => {
         }
     }
 
-
+    if (loading) {
+        return (<div className={"d-flex min-vh-100 align-items-center justify-content-center"}><ReactLoading
+            className={"col-md-8 mx-auto h-100"} type={"spinningBubbles"} color={"skyblue"} height={'20vh'}
+            width={'20vh'}></ReactLoading></div>)
+    } else {
     return (
         <div className="container">
             {userData.connected &&
@@ -143,7 +149,12 @@ const ChatRoom = () => {
                         <ul>
                             <li onClick={()=>{setTab("CHATROOM")}} className={`member ${tab==="CHATROOM" && "active"}`}>Общая комната</li>
                             {[...privateChats.keys()].map((name,index)=>(
-                                <li onClick={()=>{setTab(name)}} className={`member ${tab===name && "active"}`} key={index}>{name}</li>
+                                <div>
+                                    <li onClick={()=>{setTab(name)}} className={`member ${tab===name && "active"}`} key={index}>
+                                        <img style={{ height: 40 , width:40, marginRight:'10px',borderRadius:20}} src={'http://localhost:8080/api/media/' +members.find(user=>user.username===name).avatar.id}></img>
+                                        {name}
+                                    </li>
+                                </div>
                             ))}
                         </ul>
                     </div>
@@ -151,9 +162,18 @@ const ChatRoom = () => {
                         <ul className="chat-messages prokrutka">
                             {publicChats.map((chat,index)=>(
                                 <li className={`message ${chat.senderName === userData.username && "self"}`} key={index}>
-                                    {chat.senderName !== userData.username && <div className="avatar">{chat.senderName}</div>}
+                                    {chat.senderName !== userData.username &&
+                                        <div className="avatar">
+                                            <img style={{ height: 40 , width:40, marginRight:'10px',borderRadius:20}} src={'http://localhost:8080/api/media/' +members.find(user=>user.username===chat.senderName).avatar.id}></img>
+                                            {chat.senderName}
+                                        </div>
+                                    }
                                     <div className="message-data">{chat.message}</div>
-                                    {chat.senderName === userData.username && <div className="avatar self">{chat.senderName}</div>}
+                                    {chat.senderName === userData.username && <div className="avatar self">
+                                        {chat.senderName}
+                                        <img style={{ height: 40 , width:40, marginLeft:'10px',borderRadius:20}} src={'http://localhost:8080/api/media/' +members.find(user=>user.username===chat.senderName).avatar.id}></img>
+                                    </div>
+                                    }
                                 </li>
                             ))}
                         </ul>
@@ -167,9 +187,19 @@ const ChatRoom = () => {
                         <ul className="chat-messages prokrutka">
                             {[...privateChats.get(tab)].map((chat,index)=>(
                                 <li className={`message ${chat.senderName === userData.username && "self"}`} key={index}>
-                                    {chat.senderName !== userData.username && <div className="avatar">{chat.senderName}</div>}
+                                    {
+                                        chat.senderName !== userData.username &&
+                                        <div className="avatar">
+                                            <img style={{ height: 40 , width:40, marginRight:'10px',borderRadius:20}} src={'http://localhost:8080/api/media/' +members.find(user=>user.username===chat.senderName).avatar.id}></img>
+                                            {chat.senderName}
+                                        </div>
+                                    }
                                     <div className="message-data">{chat.message}</div>
-                                    {chat.senderName === userData.username && <div className="avatar self">{chat.senderName}</div>}
+                                    {chat.senderName === userData.username &&
+                                        <div className="avatar self">
+                                            {chat.senderName}
+                                            <img style={{ height: 40 , width:40, marginLeft:'10px',borderRadius:20}} src={'http://localhost:8080/api/media/' +members.find(user=>user.username===chat.senderName).avatar.id}></img>
+                                        </div>}
                                 </li>
                             ))}
                         </ul>
@@ -183,6 +213,6 @@ const ChatRoom = () => {
             }
         </div>
     )
-}
+}}
 
 export {ChatRoom}
