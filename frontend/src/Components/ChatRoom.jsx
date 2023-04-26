@@ -4,9 +4,11 @@ import SockJS from 'sockjs-client';
 import {useContext} from "react";
 import {Context} from "../index";
 import ReactLoading from "react-loading"
-import {allUsers, getPrivateMessages, getPublicMessages} from "../http/userApi";
+import { Trash } from "react-bootstrap-icons"
+import {allUsers, deleteMessageApi, getPrivateMessages, getPublicMessages} from "../http/userApi";
 let globalPublicChats=[];
-let members=[]
+let globalPrivateChats=new Map();
+let members=[];
 
 var stompClient =null;
 const ChatRoom = () => {
@@ -27,7 +29,6 @@ const ChatRoom = () => {
     useEffect(() => {
         allUsers().then((data)=>{
             members=[...data.data]
-            console.log(members)
         }).finally(() => setLoading(false))
 
         getPublicMessages().then((data) => {
@@ -36,13 +37,11 @@ const ChatRoom = () => {
         })
 
         getPrivateMessages().then((data) =>{
-            console.log(data.data)
         })
         connect();
     }, [])
 
      const connect =()=>{
-
         let Sock = new SockJS('http://localhost:8080/ws');
         stompClient = over(Sock);
         stompClient.connect({},function (){
@@ -67,7 +66,6 @@ const ChatRoom = () => {
 
     const onMessageReceived = (payload)=>{
         var payloadData = JSON.parse(payload.body);
-        console.log(payloadData)
         switch(payloadData.status){
             case "JOIN":
                 if(!privateChats.get(payloadData.senderName)){
@@ -83,7 +81,6 @@ const ChatRoom = () => {
     }
 
     const onPrivateMessage = (payload)=>{
-        console.log(payload);
         var payloadData = JSON.parse(payload.body);
         if(privateChats.get(payloadData.senderName)){
             privateChats.get(payloadData.senderName).push(payloadData);
@@ -112,7 +109,6 @@ const ChatRoom = () => {
                 message: userData.message,
                 status:"MESSAGE"
             };
-            console.log(chatMessage);
             stompClient.send("/app/message", {}, JSON.stringify(chatMessage));
             setUserData({...userData,"message": ""});
         }
@@ -134,6 +130,13 @@ const ChatRoom = () => {
             stompClient.send("/app/private-message", {}, JSON.stringify(chatMessage));
             setUserData({...userData,"message": ""});
         }
+    }
+
+
+    const deleteMessage = (index)=>{
+        publicChats.splice(index,1)
+        setPublicChats([...publicChats]);
+        deleteMessageApi(index).then((data)=>{console.log(data)})
     }
 
     if (loading) {
@@ -161,9 +164,10 @@ const ChatRoom = () => {
                     {tab==="CHATROOM" && <div className="chat-content">
                         <ul className="chat-messages prokrutka">
                             {publicChats.map((chat,index)=>(
-                                <li className={`message ${chat.senderName === userData.username && "self"}`} key={index}>
+                                <li className={`message ${chat.senderName === userData.username && "self"}`} id={index}>
                                     {chat.senderName !== userData.username &&
                                         <div className="avatar">
+                                            <Trash size={15} style={{marginRight:'10px'}} onClick={()=>{deleteMessage(index)}}/>
                                             <img style={{ height: 40 , width:40, marginRight:'10px',borderRadius:20}} src={'http://localhost:8080/api/media/' +members.find(user=>user.username===chat.senderName).avatar.id}></img>
                                             {chat.senderName}
                                         </div>
@@ -172,6 +176,7 @@ const ChatRoom = () => {
                                     {chat.senderName === userData.username && <div className="avatar self">
                                         {chat.senderName}
                                         <img style={{ height: 40 , width:40, marginLeft:'10px',borderRadius:20}} src={'http://localhost:8080/api/media/' +members.find(user=>user.username===chat.senderName).avatar.id}></img>
+                                        <Trash size={15} style={{marginLeft:'10px'}}  onClick={()=>{deleteMessage(index)}}/>
                                     </div>
                                     }
                                 </li>

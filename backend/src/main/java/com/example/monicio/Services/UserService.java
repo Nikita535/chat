@@ -5,10 +5,7 @@ import com.example.monicio.Config.JWT.JWTUtil;
 import com.example.monicio.Controllers.AuthController;
 import com.example.monicio.DTO.UserDTO;
 import com.example.monicio.DTO.ValidateDTO.RegisterRequestDTO;
-import com.example.monicio.Models.ActivationToken;
-import com.example.monicio.Models.Media;
-import com.example.monicio.Models.Role;
-import com.example.monicio.Models.User;
+import com.example.monicio.Models.*;
 import com.example.monicio.Repositories.ActivationTokenRepository;
 import com.example.monicio.Repositories.MessageRepository;
 import com.example.monicio.Repositories.UserRepository;
@@ -220,5 +217,12 @@ public class UserService implements UserDetailsService {
 
     public ResponseEntity<?> getPrivateMessages(){
         return ResponseEntity.ok(messageRepository.findAll().stream().filter(message -> message.getReceiverName()!=null).collect(Collectors.toList()));
+    }
+
+    public ResponseEntity<?> deleteMessage(String messageIndex){
+        List<Message> publicMessage = messageRepository.findAll().stream().filter(message -> message.getReceiverName() == null).toList();
+        Message deletedMessage = publicMessage.get(Integer.parseInt(messageIndex));
+        messageRepository.delete(deletedMessage);
+        return ResponseEntity.ok("Сообщение удалено");
     }
 }

@@ -12,6 +12,8 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
@@ -56,5 +58,10 @@ public class ChatController {
     @GetMapping("/api/chat/messages/private")
     private ResponseEntity<?> privateMessages(){
         return userService.getPrivateMessages();
+    }
+
+    @PostMapping("/api/chat/delete/message")
+    private ResponseEntity<?> deletePublicMessage(@RequestParam String messageIndex){
+       return  userService.deleteMessage(messageIndex);
     }
 }

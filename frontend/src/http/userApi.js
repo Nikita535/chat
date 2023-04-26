@@ -93,6 +93,19 @@ const getPrivateMessages = async () =>{
     })
 }
 
+const deleteMessageApi = async (index) =>{
+    return axios({
+        method: 'POST',
+        params:{
+            messageIndex: index
+        },
+        url: `http://localhost:8080/api/chat/delete/message`,
+        headers: {
+            'Authorization': 'Bearer ' + getToken()
+        }
+    })
+}
+
 export {
     login,
     registration,
@@ -103,5 +116,6 @@ export {
     allUsers,
     deleteUser,
     getPublicMessages,
-    getPrivateMessages
+    getPrivateMessages,
+    deleteMessageApi
 }
