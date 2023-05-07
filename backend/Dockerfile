@@ -13,7 +13,7 @@ COPY . .
 RUN gradle clean build
 
 FROM amazoncorretto:17
-ENV ARTIFACT_NAME=MonicIO-0.0.1-SNAPSHOT.jar
+ENV ARTIFACT_NAME=MonicIO-0.0.1-SNAPSHOT-plain.jar
 ENV APP_HOME=/usr/app/
 
 WORKDIR $APP_HOME
