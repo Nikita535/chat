@@ -22,7 +22,7 @@ jar {
 }
 
 tasks.jar {
-    manifest.attributes["Main-Class"] = "com.example.monicio.MonicIoApplication"
+    manifest.attributes["Main-Class"] = "src.main.java.com.example.monicio.MonicIoApplication"
 }
 
 repositories {
