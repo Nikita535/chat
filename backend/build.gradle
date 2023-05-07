@@ -13,6 +13,13 @@ configurations {
         extendsFrom annotationProcessor
     }
 }
+bootJar {
+    enabled = false
+}
+
+jar {
+    enabled = true
+}
 
 repositories {
     mavenCentral()
