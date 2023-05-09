@@ -13,17 +13,7 @@ configurations {
         extendsFrom annotationProcessor
     }
 }
-bootJar {
-    enabled = false
-}
 
-jar {
-    enabled = true
-}
-
-tasks.jar {
-    manifest.attributes["Main-Class"] = "java.com.example.monicio.MonicIoApplication"
-}
 
 repositories {
     mavenCentral()
